@@ -48,7 +48,7 @@ function App() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-yellow-500">
+      <div className="min-h-screen bg-[#121212] flex items-center justify-center text-yellow-500">
         Carregando...
       </div>
     );
@@ -56,13 +56,18 @@ function App() {
   if (!session) return <Auth onLoginSuccess={() => {}} />;
 
   return (
-    <div>
-      {/* Botão Flutuante Vermelho no Canto Inferior */}
+    <div className="bg-[#121212] min-h-screen">
+      {/* BOTÃO SAIR FLUTUANTE 
+          fixed: fica preso na tela
+          bottom-6 right-6: canto inferior direito
+          z-50: fica acima de tudo
+       */}
       <button
         onClick={() => supabase.auth.signOut()}
-        className="fixed bottom-6 right-6 bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg z-50 hover:bg-red-700 transition-colors"
+        className="fixed bottom-6 right-6 h-12 w-12 bg-red-900/80 text-white rounded-full shadow-2xl z-50 hover:bg-red-700 transition-all flex items-center justify-center border border-red-500/30 backdrop-blur-sm"
+        title="Sair"
       >
-        Sair
+        ✕
       </button>
 
       {userRole === "barber" ? (
