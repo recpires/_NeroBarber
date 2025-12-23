@@ -6,7 +6,7 @@ import BarberDashboard from "./BarberDashboard";
 
 function App() {
   const [session, setSession] = useState(null);
-  const [userRole, setUserRole] = useState(null); // 'client' ou 'barber'
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ function App() {
     }
   }
 
-  // Tela de Carregamento (Spinner simples)
+  // Tela de Carregamento
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -66,17 +66,19 @@ function App() {
     return <Auth onLoginSuccess={() => {}} />;
   }
 
-  // Se estiver logado, decide qual tela mostrar e adiciona botão de sair
+  // --- ÁREA LOGADA (DASHBOARD) ---
   return (
     <div>
-      {/* Botão de Sair Flutuante (Temporário para facilitar testes) */}
+      {/* Botão de Sair FLUTUANTE (Canto Inferior Direito) */}
       <button
         onClick={() => supabase.auth.signOut()}
-        className="fixed bottom-4 right-4 bg-red-900/80 text-white text-xs px-3 py-1 rounded hover:bg-red-800 z-50"
+        className="fixed bottom-6 right-6 bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg z-50 hover:bg-red-700 transition-colors cursor-pointer"
+        title="Sair da conta"
       >
         Sair
       </button>
 
+      {/* Decide qual Dashboard mostrar */}
       {userRole === "barber" ? (
         <BarberDashboard session={session} />
       ) : (

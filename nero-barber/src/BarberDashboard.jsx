@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 import CreateBarbershop from "./CreateBarbershop";
 import ServiceModal from "./ServiceModal";
+import ProductModal from "./ProductModal";
 
 export default function BarberDashboard({ session }) {
   const [barbershop, setBarbershop] = useState(null);

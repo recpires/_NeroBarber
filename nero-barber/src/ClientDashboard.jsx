@@ -4,123 +4,179 @@ import BookingModal from "./BookingModal";
 
 export default function ClientDashboard({ session }) {
   const [barbershops, setBarbershops] = useState([]);
-  const [points, setPoints] = useState(0); // Estado para os pontos
+  const [products, setProducts] = useState([]);
+  const [points, setPoints] = useState(0);
   const [selectedShop, setSelectedShop] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function fetchData() {
+      try {
+        const profileReq = supabase
+          .from("profiles")
+          .select("loyalty_points")
+          .eq("id", session.user.id)
+          .single();
+        const shopsReq = supabase.from("barbershops").select("*");
+        const productsReq = supabase
+          .from("products")
+          .select("*, barbershops(name)")
+          .limit(6);
+
+        const [profileRes, shopsRes, productsRes] = await Promise.all([
+          profileReq,
+          shopsReq,
+          productsReq,
+        ]);
+
+        if (profileRes.data) setPoints(profileRes.data.loyalty_points || 0);
+        if (shopsRes.data) setBarbershops(shopsRes.data);
+        if (productsRes.data) setProducts(productsRes.data);
+      } catch (error) {
+        console.error("Erro ao carregar:", error);
+      }
+    }
     fetchData();
   }, [session.user.id]);
 
-  async function fetchData() {
-    try {
-      // 1. Busca Barbearias
-      const { data: shops } = await supabase.from("barbershops").select("*");
-      setBarbershops(shops || []);
-
-      // 2. Busca os Pontos do Cliente no perfil
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("loyalty_points")
-        .eq("id", session.user.id)
-        .single();
-
-      if (profile) {
-        setPoints(profile.loyalty_points || 0);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar dados:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Calcula quanto falta para o prêmio (ex: prêmio com 100 pontos)
-  const pointsGoal = 100;
-  const progress = (points / pointsGoal) * 100;
-
   return (
-    <div className="min-h-screen bg-zinc-950 p-6 text-zinc-200 font-sans">
-      {/* Cabeçalho com Pontos */}
-      <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-2xl font-serif text-yellow-500">Olá, Cliente</h1>
-          <p className="text-xs text-zinc-500">{session.user.email}</p>
-        </div>
+    <div className="min-h-screen bg-zinc-950 text-zinc-200 font-sans pb-20">
+      {/* --- 1. HERO SECTION (BANNER BLINDADO) --- */}
+      {/* Usamos style={{ height: '400px' }} para garantir que ele ocupe espaço */}
+      <div
+        className="relative w-full overflow-hidden flex items-end p-8"
+        style={{
+          height: "400px",
+          background: "linear-gradient(135deg, #1a1a1a 0%, #000000 100%)",
+        }}
+      >
+        {/* Círculo Dourado Decorativo de Fundo */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-600/20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
 
-        {/* Card de Fidelidade */}
-        <div className="bg-zinc-900 border border-yellow-600/30 p-4 rounded-xl flex items-center gap-4 shadow-lg shadow-yellow-900/10">
-          <div className="text-right">
-            <p className="text-xs text-zinc-400 uppercase tracking-widest">
-              Meus Pontos
+        <div className="relative z-10 w-full flex flex-col md:flex-row justify-between items-end">
+          <div className="mb-4 md:mb-0">
+            <p className="text-yellow-500 text-xs font-bold tracking-[0.3em] uppercase mb-3">
+              Olá, {session.user.email.split("@")[0]}
             </p>
-            <p className="text-3xl font-serif text-yellow-500 font-bold">
+            <h1 className="text-4xl md:text-6xl font-serif text-white font-bold leading-tight drop-shadow-lg">
+              Seu Estilo, <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+                Sua Assinatura.
+              </span>
+            </h1>
+          </div>
+
+          {/* Card de Pontos (Versão Desktop) */}
+          <div className="hidden md:block bg-white/5 backdrop-blur-md border border-yellow-500/30 p-6 rounded-2xl text-center shadow-2xl">
+            <span className="block text-5xl font-serif font-bold text-yellow-500">
               {points}
-            </p>
+            </span>
+            <span className="text-xs text-zinc-300 uppercase tracking-widest mt-1 block">
+              Pontos Fidelidade
+            </span>
           </div>
-          <div className="h-12 w-12 rounded-full border-2 border-yellow-600 flex items-center justify-center bg-yellow-600/10">
-            👑
-          </div>
         </div>
-      </header>
-
-      {/* Barra de Progresso da Fidelidade */}
-      <div className="mb-10 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
-        <div className="flex justify-between text-xs text-zinc-400 mb-2">
-          <span>Próxima Recompensa</span>
-          <span>
-            {points} / {pointsGoal}
-          </span>
-        </div>
-        <div className="w-full bg-zinc-800 rounded-full h-2.5">
-          <div
-            className="bg-yellow-600 h-2.5 rounded-full transition-all duration-1000"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          ></div>
-        </div>
-        <p className="text-xs text-zinc-500 mt-2 text-center">
-          {points >= pointsGoal
-            ? "🎉 Parabéns! Você ganhou um corte grátis!"
-            : `Faltam ${pointsGoal - points} pontos para o seu corte grátis.`}
-        </p>
       </div>
 
-      <h2 className="text-xl font-serif text-white mb-4 border-l-4 border-yellow-600 pl-3">
-        Agendar Horário
-      </h2>
+      {/* Card de Pontos (Versão Mobile - Só aparece em telas pequenas) */}
+      <div className="md:hidden px-6 -mt-8 relative z-20">
+        <div className="bg-zinc-900 border border-yellow-600/30 p-4 rounded-xl flex items-center justify-between shadow-xl shadow-black/50">
+          <span className="text-sm text-zinc-400 uppercase font-bold">
+            Meus Pontos
+          </span>
+          <span className="text-3xl font-serif font-bold text-yellow-500 flex items-center gap-2">
+            {points} <span className="text-lg">👑</span>
+          </span>
+        </div>
+      </div>
 
-      {loading ? (
-        <p className="text-zinc-500">Carregando...</p>
-      ) : barbershops.length === 0 ? (
-        <p className="text-zinc-500">Nenhuma barbearia encontrada.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {barbershops.map((shop) => (
-            <div
-              key={shop.id}
-              className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 hover:border-yellow-600 transition-all cursor-pointer group"
-              onClick={() => setSelectedShop(shop)}
-            >
-              <div className="h-32 bg-zinc-800 rounded-lg mb-3 flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
-                <h3 className="text-3xl font-serif text-zinc-700 font-bold group-hover:text-yellow-600/50 transition-colors z-0">
-                  {shop.name.substring(0, 2).toUpperCase()}
-                </h3>
-              </div>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-lg text-white group-hover:text-yellow-500 transition-colors">
-                    {shop.name}
-                  </h3>
-                  <p className="text-sm text-zinc-400 mt-1">
-                    📍 {shop.address}
+      <div className="p-6 space-y-12">
+        {/* --- 2. DESTAQUES --- */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif text-white border-l-4 border-yellow-600 pl-3">
+              Produtos Exclusivos
+            </h2>
+            <span className="text-xs text-zinc-500 hover:text-yellow-500 cursor-pointer transition-colors">
+              Ver loja completa →
+            </span>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="min-w-[180px] w-[180px] bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-yellow-600/50 transition-all group shadow-lg"
+              >
+                <div className="h-32 overflow-hidden relative">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                </div>
+                <div className="p-4">
+                  <p className="text-[10px] text-zinc-500 mb-1 uppercase tracking-wider truncate">
+                    {product.barbershops?.name}
                   </p>
+                  <h3 className="font-bold text-white text-md truncate font-serif">
+                    {product.name}
+                  </h3>
+                  <div className="flex justify-between items-center mt-3">
+                    <p className="text-yellow-500 font-bold">
+                      R$ {product.price}
+                    </p>
+                    <button className="bg-yellow-600 text-black text-xs p-2 rounded-full hover:bg-yellow-400 transition-colors">
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        </section>
+
+        {/* --- 3. BARBEARIAS --- */}
+        <section>
+          <h2 className="text-2xl font-serif text-white mb-6 border-l-4 border-zinc-700 pl-3">
+            Agendar Horário
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {barbershops.map((shop) => (
+              <div
+                key={shop.id}
+                onClick={() => setSelectedShop(shop)}
+                className="bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 shadow-xl relative group cursor-pointer hover:-translate-y-1 transition-transform duration-300"
+              >
+                <div className="h-40 bg-gradient-to-r from-zinc-800 to-zinc-900 relative">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-30 group-hover:opacity-50 transition-opacity">
+                    <h3 className="text-6xl font-serif text-white font-bold">
+                      {shop.name.substring(0, 1)}
+                    </h3>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
+                    DISPONÍVEL
+                  </div>
+                </div>
+
+                <div className="p-5 flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-xl text-white group-hover:text-yellow-500 transition-colors font-serif">
+                      {shop.name}
+                    </h3>
+                    <p className="text-sm text-zinc-400 mt-2 flex items-center gap-2">
+                      📍 {shop.address}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-yellow-600 rounded-full flex items-center justify-center text-black text-xl shadow-lg shadow-yellow-600/20 group-hover:scale-110 transition-transform">
+                    ✂
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
 
       {selectedShop && (
         <BookingModal
