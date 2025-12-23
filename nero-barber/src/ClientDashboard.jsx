@@ -40,24 +40,23 @@ export default function ClientDashboard({ session }) {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-200 font-sans pb-20">
-      {/* --- 1. HERO SECTION (BANNER BLINDADO) --- */}
-      {/* Usamos style={{ height: '400px' }} para garantir que ele ocupe espaço */}
+      {/* --- 1. HERO SECTION (BANNER) --- */}
       <div
         className="relative w-full overflow-hidden flex items-end p-8"
         style={{
           height: "400px",
-          background: "linear-gradient(135deg, #1a1a1a 0%, #000000 100%)",
+          background: "linear-gradient(135deg, #121212 0%, #000000 100%)",
         }}
       >
-        {/* Círculo Dourado Decorativo de Fundo */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-600/20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-600/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
 
-        <div className="relative z-10 w-full flex flex-col md:flex-row justify-between items-end">
-          <div className="mb-4 md:mb-0">
+        {/* CORREÇÃO AQUI: items-start para celular, md:items-end para PC */}
+        <div className="relative z-10 w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+          <div className="mb-2 md:mb-0">
             <p className="text-yellow-500 text-xs font-bold tracking-[0.3em] uppercase mb-3">
               Olá, {session.user.email.split("@")[0]}
             </p>
-            <h1 className="text-4xl md:text-6xl font-serif text-white font-bold leading-tight drop-shadow-lg">
+            <h1 className="text-4xl md:text-6xl font-serif text-white font-bold leading-tight drop-shadow-lg text-left">
               Seu Estilo, <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
                 Sua Assinatura.
@@ -65,19 +64,19 @@ export default function ClientDashboard({ session }) {
             </h1>
           </div>
 
-          {/* Card de Pontos (Versão Desktop) */}
-          <div className="hidden md:block bg-white/5 backdrop-blur-md border border-yellow-500/30 p-6 rounded-2xl text-center shadow-2xl">
+          {/* Card de Pontos (PC) */}
+          <div className="hidden md:block bg-white/5 backdrop-blur-md border border-yellow-500/30 p-6 rounded-2xl text-center shadow-2xl min-w-[150px]">
             <span className="block text-5xl font-serif font-bold text-yellow-500">
               {points}
             </span>
             <span className="text-xs text-zinc-300 uppercase tracking-widest mt-1 block">
-              Pontos Fidelidade
+              Pontos
             </span>
           </div>
         </div>
       </div>
 
-      {/* Card de Pontos (Versão Mobile - Só aparece em telas pequenas) */}
+      {/* Card de Pontos (Mobile) */}
       <div className="md:hidden px-6 -mt-8 relative z-20">
         <div className="bg-zinc-900 border border-yellow-600/30 p-4 rounded-xl flex items-center justify-between shadow-xl shadow-black/50">
           <span className="text-sm text-zinc-400 uppercase font-bold">
