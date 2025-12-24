@@ -1,3 +1,4 @@
+// src/ClientDashboard.jsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 import BookingModal from "./BookingModal";
@@ -9,7 +10,7 @@ export default function ClientDashboard({ session }) {
 
   useEffect(() => {
     async function fetchData() {
-      // Busca Pontos
+      // Pega Pontos
       const { data: profile } = await supabase
         .from("profiles")
         .select("loyalty_points")
@@ -17,7 +18,7 @@ export default function ClientDashboard({ session }) {
         .single();
       if (profile) setPoints(profile.loyalty_points);
 
-      // Busca Lojas
+      // Pega Barbearias
       const { data: shops } = await supabase.from("barbershops").select("*");
       if (shops) setBarbershops(shops);
     }
@@ -25,19 +26,18 @@ export default function ClientDashboard({ session }) {
   }, [session.user.id]);
 
   return (
-    <div className="w-full min-h-screen bg-zinc-950 text-white">
-      {/* --- CABEÇALHO --- */}
-      <header className="w-full border-b border-zinc-800 p-6 bg-zinc-900">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+    <div className="w-full min-h-screen bg-zinc-950 text-white pb-20">
+      {/* 1. CABEÇALHO (Grande e Espaçoso) */}
+      <header className="bg-zinc-900 border-b border-zinc-800 py-8 px-6">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Saudação */}
           <div className="flex items-center gap-4">
-            {/* Avatar Grande */}
-            <div className="h-16 w-16 bg-yellow-600 rounded-full flex items-center justify-center text-black text-2xl font-bold border-4 border-zinc-800">
+            <div className="h-16 w-16 bg-yellow-600 rounded-full flex items-center justify-center text-2xl font-bold text-black border-4 border-zinc-800">
               {session.user.email[0].toUpperCase()}
             </div>
-            {/* Nome Grande */}
             <div>
-              <p className="text-zinc-400 uppercase tracking-widest text-xs font-bold">
-                Bem-vindo
+              <p className="text-zinc-400 text-sm font-bold uppercase tracking-wider">
+                Olá, Cliente VIP
               </p>
               <h1 className="text-2xl md:text-3xl font-bold text-white">
                 {session.user.email.split("@")[0]}
@@ -45,43 +45,45 @@ export default function ClientDashboard({ session }) {
             </div>
           </div>
 
-          {/* Pontos Grandes */}
-          <div className="text-right">
-            <span className="block text-4xl font-bold text-yellow-500">
-              {points}
+          {/* Cartão de Pontos */}
+          <div className="bg-black border border-zinc-700 px-6 py-3 rounded-xl flex flex-col items-center min-w-[120px]">
+            <span className="text-3xl font-bold text-yellow-500">{points}</span>
+            <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">
+              Seus Pontos
             </span>
-            <span className="text-sm text-zinc-400 uppercase">Pontos</span>
           </div>
         </div>
       </header>
 
-      {/* --- LISTA DE BARBEARIAS --- */}
-      <main className="max-w-4xl mx-auto p-6 mt-8">
-        <h2 className="text-3xl font-bold text-white mb-6 border-l-8 border-yellow-600 pl-4">
-          Escolha sua Unidade
+      {/* 2. LISTA DE BARBEARIAS */}
+      <main className="max-w-5xl mx-auto p-6 mt-6">
+        <h2 className="text-2xl font-bold text-white mb-6 border-l-4 border-yellow-600 pl-4">
+          Onde você quer cortar hoje?
         </h2>
 
         {barbershops.length === 0 ? (
-          <div className="p-10 text-center bg-zinc-900 rounded-xl border border-zinc-800 text-xl text-zinc-500">
-            Carregando barbearias...
+          <div className="text-center py-10 text-zinc-500 bg-zinc-900 rounded-xl">
+            Nenhuma barbearia cadastrada no momento.
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {barbershops.map((shop) => (
               <div
                 key={shop.id}
                 onClick={() => setSelectedShop(shop)}
-                className="group bg-zinc-900 p-8 rounded-2xl border border-zinc-800 cursor-pointer hover:border-yellow-600 hover:bg-zinc-800 transition-all flex items-center justify-between"
+                className="group bg-zinc-900 p-6 rounded-xl border border-zinc-800 cursor-pointer hover:border-yellow-600 hover:bg-zinc-800 transition-all shadow-lg flex items-center justify-between"
               >
                 <div>
-                  <h3 className="text-2xl font-bold text-white group-hover:text-yellow-500 transition-colors">
+                  <h3 className="text-xl font-bold text-white group-hover:text-yellow-500 transition-colors">
                     {shop.name}
                   </h3>
-                  <p className="text-lg text-zinc-400 mt-2">
-                    📍 {shop.address}
+                  <p className="text-zinc-400 mt-1 flex items-center gap-2">
+                    <span>📍</span> {shop.address}
                   </p>
                 </div>
-                <div className="bg-white text-black h-12 w-12 rounded-full flex items-center justify-center font-bold text-xl group-hover:bg-yellow-500 transition-colors">
+
+                {/* Botão Seta */}
+                <div className="h-10 w-10 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:bg-yellow-600 group-hover:text-black transition-all">
                   ➜
                 </div>
               </div>
@@ -90,6 +92,7 @@ export default function ClientDashboard({ session }) {
         )}
       </main>
 
+      {/* Modal de Agendamento */}
       {selectedShop && (
         <BookingModal
           barbershop={selectedShop}

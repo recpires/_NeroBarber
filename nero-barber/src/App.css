@@ -1,3 +1,5 @@
+/* src/App.css */
+/* Removemos todas as limitações de largura e alinhamento */
 #root {
   width: 100%;
   max-width: 100%;

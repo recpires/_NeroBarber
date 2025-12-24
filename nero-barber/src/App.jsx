@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 import Auth from "./Auth";
@@ -41,20 +42,20 @@ function App() {
 
   if (loading)
     return (
-      <div className="h-screen flex items-center justify-center bg-zinc-950 text-yellow-500 font-bold">
+      <div className="h-screen flex items-center justify-center bg-zinc-950 text-white">
         Carregando...
       </div>
     );
   if (!session) return <Auth onLoginSuccess={() => {}} />;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
+    <div className="min-h-screen w-full bg-zinc-950">
+      {/* Botão de Sair fixo no canto */}
       <button
         onClick={() => supabase.auth.signOut()}
-        className="fixed bottom-6 right-6 z-[100] bg-red-600 hover:bg-red-700 text-white h-12 w-12 rounded-full shadow-2xl flex items-center justify-center font-bold transition-transform hover:scale-105"
-        title="Sair"
+        className="fixed bottom-4 right-4 z-50 bg-red-600 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-red-700"
       >
-        ✕
+        Sair
       </button>
 
       {userRole === "barber" ? (
