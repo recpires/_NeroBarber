@@ -1,16 +1,31 @@
-# React + Vite
+# ✂️ Nero Barber - Plataforma Premium
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema completo de agendamento e fidelidade para barbearias.
+Transforme clientes em membros VIP com gamificação e agendamento fácil.
 
-Currently, two official plugins are available:
+## 🚀 Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📱 Para o Cliente
 
-## React Compiler
+- **App Visual Premium:** Design moderno estilo "Dark Mode".
+- **Agendamento Rápido:** Escolha barbeiro, serviço e horário em segundos.
+- **Clube de Fidelidade:** Pontos automáticos a cada corte.
+- **Vitrine de Produtos:** Explore pomadas e acessórios exclusivos.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 💈 Para a Barbearia (Admin)
 
-## Expanding the ESLint configuration
+- **Gestão Total:** Controle serviços, produtos e horários.
+- **CRM Simples:** Acompanhe quem são seus melhores clientes.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tecnologias
+
+- **Frontend:** React + Vite
+- **Design:** Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + Auth)
+- **Mobile:** PWA (Progressive Web App)
+
+## 📦 Como Rodar
+
+1. `npm install`
+2. Configure o arquivo `.env.local` com suas chaves do Supabase.
+3. `npm run dev`

@@ -10,153 +10,160 @@ export default function ClientDashboard({ session }) {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const profileReq = supabase
-          .from("profiles")
-          .select("loyalty_points")
-          .eq("id", session.user.id)
-          .single();
-        const shopsReq = supabase.from("barbershops").select("*");
-        const productsReq = supabase
-          .from("products")
-          .select("*, barbershops(name)")
-          .limit(6);
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("loyalty_points")
+        .eq("id", session.user.id)
+        .single();
+      if (profile) setPoints(profile.loyalty_points);
 
-        const [profileRes, shopsRes, productsRes] = await Promise.all([
-          profileReq,
-          shopsReq,
-          productsReq,
-        ]);
+      const { data: shops } = await supabase.from("barbershops").select("*");
+      const { data: prods } = await supabase
+        .from("products")
+        .select("*, barbershops(name)")
+        .limit(10);
 
-        if (profileRes.data) setPoints(profileRes.data.loyalty_points || 0);
-        if (shopsRes.data) setBarbershops(shopsRes.data);
-        if (productsRes.data) setProducts(productsRes.data);
-      } catch (error) {
-        console.error("Erro:", error);
-      }
+      if (shops) setBarbershops(shops);
+      if (prods) setProducts(prods);
     }
     fetchData();
   }, [session.user.id]);
 
   return (
-    <div className="min-h-screen bg-[#121212] text-zinc-200 font-sans pb-24">
-      {/* Container Centralizado (Limita a largura em telas grandes para parecer App) */}
-      <div className="max-w-4xl mx-auto bg-zinc-950 min-h-screen shadow-2xl shadow-black border-x border-zinc-900">
-        {/* --- 1. HERO HEADER (Minimalista & Luxo) --- */}
-        <div className="relative h-80 w-full overflow-hidden rounded-b-[3rem] shadow-2xl bg-zinc-900 border-b border-yellow-900/20">
-          {/* Fundo Degradê Premium */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-900/20 via-zinc-950 to-zinc-950"></div>
-
-          <div className="relative z-10 h-full flex flex-col justify-center px-8 pt-4">
-            <p className="text-yellow-600 text-[10px] font-bold tracking-[0.4em] uppercase mb-2">
-              Bem-vindo
-            </p>
-            <h1 className="text-4xl md:text-5xl font-serif text-white leading-tight">
-              <span className="font-light italic text-zinc-400">Olá,</span>{" "}
-              <br />
-              {session.user.email.split("@")[0]}
-            </h1>
-
-            {/* Badge de Pontos Integrado */}
-            <div className="mt-6 flex items-center gap-4">
-              <div className="bg-gradient-to-r from-yellow-600 to-yellow-800 p-[1px] rounded-full">
-                <div className="bg-black px-4 py-2 rounded-full flex items-center gap-2">
-                  <span className="text-yellow-500 font-bold text-lg">
-                    {points}
-                  </span>
-                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider">
-                    Pontos
-                  </span>
-                </div>
-              </div>
-              {points >= 100 && (
-                <span className="text-xs text-green-400 animate-pulse">
-                  ★ Recompensa disponível
-                </span>
-              )}
+    <div className="min-h-screen pb-20 bg-zinc-950">
+      {/* --- NAVBAR --- */}
+      <nav className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-4 shadow-md">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-yellow-600 flex items-center justify-center text-black font-bold shadow-lg border-2 border-yellow-500 text-sm md:text-base">
+              {session.user.email[0].toUpperCase()}
             </div>
+            <div>
+              <p className="text-[10px] md:text-xs text-zinc-400 uppercase tracking-widest font-bold">
+                Membro VIP
+              </p>
+              <h1 className="text-sm md:text-lg font-bold text-white">
+                {session.user.email.split("@")[0]}
+              </h1>
+            </div>
+          </div>
+
+          <div className="bg-zinc-900 border border-yellow-600/30 px-4 py-2 rounded-full flex items-center gap-2">
+            <span className="text-yellow-500 font-bold text-lg md:text-2xl">
+              {points}
+            </span>
+            <span className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-widest">
+              Pts
+            </span>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-16">
+        {/* 1. HERO BANNER - Altura Travada (h-64 mobile, h-96 desktop) */}
+        <div className="relative w-full h-64 md:h-96 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-zinc-800 group mt-4">
+          {/* Imagem Travada no Fundo */}
+          <img
+            src="https://images.unsplash.com/photo-1503951914875-452162b7f30a?q=80&w=1600&auto=format&fit=crop"
+            className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+            alt="Banner"
+          />
+
+          {/* Texto por cima da imagem */}
+          <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-12 bg-gradient-to-t from-black via-black/40 to-transparent">
+            <span className="bg-yellow-600 text-black font-bold px-3 py-1 rounded w-fit text-[10px] md:text-xs uppercase mb-3 shadow-lg tracking-wide">
+              Nova Coleção
+            </span>
+            <h2 className="text-3xl md:text-6xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
+              Estilo & <br />
+              Performance.
+            </h2>
+            <p className="text-zinc-200 max-w-lg text-sm md:text-xl drop-shadow-md">
+              Produtos exclusivos para quem exige o melhor.
+            </p>
           </div>
         </div>
 
-        <div className="p-6 space-y-10 -mt-4">
-          {/* --- 2. VITRINE DE PRODUTOS --- */}
-          <section>
-            <div className="flex justify-between items-end mb-5 px-1">
-              <h2 className="text-xl font-serif text-zinc-100">
-                Coleção Exclusiva
-              </h2>
-              <span className="text-[10px] text-yellow-600 uppercase tracking-widest cursor-pointer hover:text-yellow-500">
-                Ver Todos
-              </span>
-            </div>
+        {/* 2. PRODUTOS - Grid Responsivo */}
+        <section>
+          <div className="flex justify-between items-end mb-6 md:mb-8">
+            <h2 className="text-xl md:text-3xl font-bold text-white border-l-4 border-yellow-600 pl-4">
+              Produtos Premium
+            </h2>
+            <button className="text-sm md:text-base text-zinc-400 hover:text-white transition-colors">
+              Ver Loja →
+            </button>
+          </div>
 
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="min-w-[160px] snap-start bg-zinc-900/50 rounded-xl border border-zinc-800 p-3 hover:border-yellow-900/50 transition-all group cursor-pointer"
-                >
-                  <div className="h-28 rounded-lg overflow-hidden mb-3 relative">
-                    <img
-                      src={product.image_url}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      alt={product.name}
-                    />
+          {/* GRID: 2 colunas no celular, 4 no tablet, 5 no PC */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="group bg-zinc-900 rounded-xl p-3 border border-zinc-800 hover:border-yellow-600/50 transition-all cursor-pointer flex flex-col"
+              >
+                {/* CONTAINER DA IMAGEM: h-40 (160px) fixo */}
+                <div className="w-full h-40 md:h-52 bg-black rounded-lg mb-3 overflow-hidden relative">
+                  <img
+                    src={product.image_url}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    alt={product.name}
+                  />
+                  <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-sm text-yellow-500 text-[10px] md:text-xs font-bold px-2 py-1 rounded border border-yellow-600/20">
+                    R$ {product.price}
                   </div>
-                  <h3 className="text-zinc-200 text-sm font-serif truncate">
+                </div>
+
+                {/* Infos do Produto */}
+                <div className="flex-1 flex flex-col">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1 font-bold truncate">
+                    {product.barbershops?.name || "Nero Store"}
+                  </p>
+                  <h3 className="text-white font-bold text-sm md:text-base truncate group-hover:text-yellow-500 transition-colors">
                     {product.name}
                   </h3>
-                  <p className="text-yellow-600 font-bold text-sm mt-1">
-                    R$ {product.price}
+
+                  <button className="w-full mt-auto pt-3 bg-zinc-800 text-zinc-200 py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase hover:bg-yellow-600 hover:text-black transition-all">
+                    Adicionar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 3. BARBEARIAS */}
+        <section>
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-6 md:mb-8 border-l-4 border-white pl-4">
+            Agendar Horário
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {barbershops.map((shop) => (
+              <div
+                key={shop.id}
+                onClick={() => setSelectedShop(shop)}
+                className="bg-zinc-900 p-5 md:p-6 rounded-xl border border-zinc-800 flex items-center gap-4 cursor-pointer hover:bg-zinc-800 hover:border-zinc-600 transition-all shadow-lg group"
+              >
+                <div className="h-12 w-12 md:h-16 md:w-16 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 text-xl md:text-2xl group-hover:scale-110 transition-transform text-zinc-400 group-hover:text-yellow-500 group-hover:border-yellow-500">
+                  ✂️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white text-base md:text-lg group-hover:text-yellow-500 transition-colors truncate">
+                    {shop.name}
+                  </h3>
+                  <p className="text-zinc-400 text-xs md:text-sm mt-1 truncate">
+                    📍 {shop.address}
                   </p>
                 </div>
-              ))}
-            </div>
-          </section>
-
-          {/* --- 3. LISTA DE BARBEARIAS --- */}
-          <section>
-            <h2 className="text-xl font-serif text-zinc-100 mb-5 px-1">
-              Agendar Experiência
-            </h2>
-            <div className="flex flex-col gap-4">
-              {barbershops.map((shop) => (
-                <div
-                  key={shop.id}
-                  onClick={() => setSelectedShop(shop)}
-                  className="relative bg-zinc-900 rounded-2xl p-1 border border-zinc-800 hover:border-yellow-600/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center gap-4 p-3">
-                    {/* Avatar da Barbearia */}
-                    <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-zinc-800 to-black flex items-center justify-center border border-zinc-700 group-hover:border-yellow-600/50 transition-colors">
-                      <span className="font-serif text-2xl text-zinc-500 group-hover:text-yellow-500 transition-colors">
-                        {shop.name.substring(0, 1)}
-                      </span>
-                    </div>
-
-                    {/* Textos */}
-                    <div className="flex-1">
-                      <h3 className="text-lg text-white font-serif group-hover:text-yellow-500 transition-colors">
-                        {shop.name}
-                      </h3>
-                      <p className="text-xs text-zinc-500 mt-1">
-                        📍 {shop.address}
-                      </p>
-                    </div>
-
-                    {/* Botão Seta */}
-                    <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:bg-yellow-600 group-hover:text-black transition-all">
-                      →
-                    </div>
-                  </div>
+                <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:bg-white group-hover:text-black transition-all font-bold text-xs">
+                  ➜
                 </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
-      {/* Modal de Agendamento */}
       {selectedShop && (
         <BookingModal
           barbershop={selectedShop}

@@ -1,18 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  background-color: #121212; /* Fundo Preto */
-  color: #f5f5f5; /* Texto Branco */
-  font-family: "Lato", sans-serif;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: "Playfair Display", serif;
+  background-color: #09090b; /* Zinc 950 */
+  color: #f4f4f5; /* Zinc 100 */
+  overflow-x: hidden; /* Evita rolagem lateral indesejada */
 }

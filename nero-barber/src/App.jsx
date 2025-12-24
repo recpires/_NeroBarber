@@ -10,9 +10,19 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function checkUserRole(userId) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+      if (data) setUserRole(data.role);
+      setLoading(false);
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchUserProfile(session.user.id);
+      if (session) checkUserRole(session.user.id);
       else setLoading(false);
     });
 
@@ -20,51 +30,28 @@ function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) fetchUserProfile(session.user.id);
+      if (session) checkUserRole(session.user.id);
       else {
         setUserRole(null);
         setLoading(false);
       }
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
-  async function fetchUserProfile(userId) {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", userId)
-        .single();
-      if (error) throw error;
-      if (data) setUserRole(data.role);
-    } catch (error) {
-      console.error("Erro:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   if (loading)
     return (
-      <div className="min-h-screen bg-[#121212] flex items-center justify-center text-yellow-500">
+      <div className="h-screen flex items-center justify-center bg-zinc-950 text-yellow-500 font-bold">
         Carregando...
       </div>
     );
-
   if (!session) return <Auth onLoginSuccess={() => {}} />;
 
   return (
-    <div className="bg-[#121212] min-h-screen">
-      {/* BOTÃO SAIR FLUTUANTE 
-          fixed: fica preso na tela
-          bottom-6 right-6: canto inferior direito
-          z-50: fica acima de tudo
-       */}
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
       <button
         onClick={() => supabase.auth.signOut()}
-        className="fixed bottom-6 right-6 h-12 w-12 bg-red-900/80 text-white rounded-full shadow-2xl z-50 hover:bg-red-700 transition-all flex items-center justify-center border border-red-500/30 backdrop-blur-sm"
+        className="fixed bottom-6 right-6 z-[100] bg-red-600 hover:bg-red-700 text-white h-12 w-12 rounded-full shadow-2xl flex items-center justify-center font-bold transition-transform hover:scale-105"
         title="Sair"
       >
         ✕
